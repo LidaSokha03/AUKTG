@@ -13,18 +13,20 @@ def send_welcome(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     register_button = types.KeyboardButton('/register')
     login_button = types.KeyboardButton('/login')
+    interview_button = types.KeyboardButton('/interview')  # кнопка інтервʼю ✅
+
     markup.add(register_button, login_button)
+    markup.add(interview_button)
 
     bot.send_message(
-    message.chat.id,
-    "Вітання! 👋\n"
-    "Виберіть одну опцію з двох нижче:\n\n"
-    "/register — Зареєструватися в системі\n"
-    "/login — Увійти в систему",
-    reply_markup=markup
+        message.chat.id,
+        "Вітання! 👋\n"
+        "📝 /register — Зареєструватися\n"
+        "🔐 /login — Увійти\n"
+        "🧠 /interview — Почати технічне інтервʼю\n",
+        reply_markup=markup
     )
 
 @bot.message_handler(func=lambda message: message.text and not message.text.startswith('/'))
-def echo_all(message):
-    bot.reply_to(message, "Виберіть існуючу команду")
-
+def fallback(message):
+    bot.reply_to(message, "Виберіть існуючу команду ✅")
