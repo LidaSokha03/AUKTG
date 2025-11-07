@@ -15,8 +15,8 @@ def start_registration(message, user: User):
         "user": user,
     }
 
-    bot.reply_to(message, "Почнемо реєстрацію.\n"
-                          "Спочатку введіть, будь ласка, ваш email:")
+    bot.reply_to(message, "Start the registration.\n"
+                          "Write down your email:")
 
 @bot.message_handler(func=lambda m: m.text and not m.text.startswith('/') and m.from_user.id in registration_state)
 def registration_flow(message):
@@ -36,7 +36,7 @@ def registration_flow(message):
         profile.save()
 
         state["step"] = "fullname"
-        bot.reply_to(message, "Дякую! Тепер введіть, будь ласка, ваше імʼя та прізвище:")
+        bot.reply_to(message, "Thank you! Now your firstname and surname:")
         return
 
     if step == "fullname":
@@ -45,7 +45,7 @@ def registration_flow(message):
         profile.save()
         user.set_registered()
         registration_state.pop(tg_id, None)
-        bot.reply_to(message, "Реєстрація завершена ✅")
+        bot.reply_to(message, "Registration completed ✅")
         dashboard(message)
         return
 
@@ -55,7 +55,7 @@ def register_handler(message):
     user = User(tg_id)
     user.load()
     if user.is_registered:
-        bot.reply_to(message, "Ви вже зареєстровані ✅")
+        bot.reply_to(message, "You are already registered ✅")
         dashboard(message)
         return
 
@@ -69,8 +69,8 @@ def login_handler(message):
     user.load()
 
     if not user.is_registered:
-        bot.reply_to(message, "Ви ще не зареєстровані. Спочатку використайте /register.")
+        bot.reply_to(message, "You are not registered. Please, use /register.")
         return
 
-    bot.reply_to(message, "Ви увійшли в систему ✅")
+    bot.reply_to(message, "You are in your account ✅")
     dashboard(message)

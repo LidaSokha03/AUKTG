@@ -18,10 +18,10 @@ def send_welcome(message):
 
     bot.send_message(
     message.chat.id,
-    "Вітання! 👋\n"
-    "Виберіть одну опцію з двох нижче:\n\n"
-    "/register — Зареєструватися в системі\n"
-    "/login — Увійти в систему",
+    "Hello! 👋\n"
+    "Choose one from the options:\n\n"
+    "/register — Register in the system\n"
+    "/login — Log in to your account",
     reply_markup=markup
     )
 
@@ -30,4 +30,4 @@ def echo_all(message):
     tg_id = message.from_user.id
     if tg_id in registration_state:
         return
-    bot.reply_to(message, "Виберіть існуючу команду")
+    bot.reply_to(message, "Command not recognized.")
