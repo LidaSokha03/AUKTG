@@ -4,6 +4,7 @@ from app.db.models.user import User
 from app.db.models.profile import Profile
 from app.handlers.dashboard import dashboard
 
+
 registration_state: dict[int, dict] = {}
 
 def start_registration(message, user: User):
@@ -43,27 +44,20 @@ def registration_flow(message):
         fullname = message.text.strip()
         profile.fullname = fullname
         profile.save()
-
-
         user.set_registered()
-
-
         registration_state.pop(tg_id, None)
         bot.reply_to(message, "Реєстрація завершена ✅")
         dashboard(message)
         return
-
-
 
 @bot.message_handler(commands=['register'])
 def register_handler(message):
     tg_id = message.from_user.id
     user = User(tg_id)
     user.load()
-
     if user.is_registered:
         bot.reply_to(message, "Ви вже зареєстровані ✅")
-        dashboard
+        dashboard(message)
         return
 
     start_registration(message, user)
@@ -80,3 +74,4 @@ def login_handler(message):
         return
 
     bot.reply_to(message, "Ви увійшли в систему ✅")
+    dashboard(message)
