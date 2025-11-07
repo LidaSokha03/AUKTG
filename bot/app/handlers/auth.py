@@ -1,5 +1,4 @@
 from app.bot_instance import bot
-from telebot import types
 from app.db.models.user import User
 from app.db.models.profile import Profile
 from app.handlers.dashboard import dashboard
