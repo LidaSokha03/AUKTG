@@ -14,7 +14,10 @@ def send_welcome(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     register_button = types.KeyboardButton('/register')
     login_button = types.KeyboardButton('/login')
+    interview_button = types.KeyboardButton('/interview')  # кнопка інтервʼю ✅
+
     markup.add(register_button, login_button)
+    markup.add(interview_button)
 
     bot.send_message(
     message.chat.id,
@@ -31,3 +34,4 @@ def echo_all(message):
     if tg_id in registration_state:
         return
     bot.reply_to(message, "Command not recognized.")
+
