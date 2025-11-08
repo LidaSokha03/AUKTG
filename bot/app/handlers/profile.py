@@ -182,3 +182,16 @@ def save_cv(call):
     )
 
     cv_cache.pop(call.from_user.id, None)
+
+@bot.callback_query_handler(func=lambda c: c.data == "restart_cv")
+def restart_cv(call):
+    cv_cache.pop(call.from_user.id, None)
+
+    bot.edit_message_text(
+        "✏️ Okay, let's start again.\n\nEnter your *Full name* (Firstname Lastname):",
+        call.message.chat.id,
+        call.message.message_id,
+        parse_mode="Markdown"
+    )
+
+    bot.register_next_step_handler(call.message, save_full_name)
