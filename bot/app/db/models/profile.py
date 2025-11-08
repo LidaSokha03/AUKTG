@@ -42,8 +42,17 @@ class Profile:
                 "$set": {
                     "fullname": self.fullname,
                     "email": self.email,
-                    "cv": cv_data,
-                },
+
+                    "cv": {
+                        "firstname": self.cv.firstname,
+                        "lastname": self.cv.lastname,
+                        "email": self.cv.email,
+                        "phone": self.cv.phone,
+                        "education": self.cv.education,
+                        "experience": self.cv.experience,
+                        "skills": self.cv.skills,
+                        "courses": self.cv.courses,
+                    },
                 "$push": {
                     "cv_history": cv_data,
                 },
@@ -58,6 +67,12 @@ class Profile:
             {"$set": {"template": template}},
             upsert=True
         )
+    @staticmethod
+    def save_profile(tg_id, full_name, email, cv):
+        profile = Profile(tg_id, full_name, email)  
+        profile.cv = cv
+        profile.save()
+
 
     def load(self):
         profile = db.profiles.find_one({"tg_id": self.tg_id})
@@ -72,12 +87,12 @@ class Profile:
                 cv_data.get("email", ""),
                 cv_data.get("phone", ""),
                 cv_data.get("education", ""),
-                cv_data.get("experience", 0),
-                cv_data.get("skills", []),
-                cv_data.get("languages", []),
-                cv_data.get("projects", ""),
-                cv_data.get("version", 1),
+                cv_data.get("experience", ""),
+                cv_data.get("skills", ""),
+                cv_data.get("courses", "")
+
             )
+
         return profile
 
     def exists(self):
@@ -101,11 +116,11 @@ class Profile:
                 cv_data.get("email", ""),
                 cv_data.get("phone", ""),
                 cv_data.get("education", ""),
-                cv_data.get("experience", 0),
-                cv_data.get("skills", []),
-                cv_data.get("languages", []),
-                cv_data.get("projects", ""),
-                cv_data.get("version", 1),
+                cv_data.get("experience", ""),
+                cv_data.get("skills", ""),
+                cv_data.get("courses", "")
+
             )
+
             return profile
         return None
