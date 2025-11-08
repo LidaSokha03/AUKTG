@@ -1,4 +1,5 @@
 from app.bot_instance import bot
+from telebot import types
 from app.db.models.user import User
 from app.db.models.profile import Profile
 from app.handlers.dashboard import dashboard
@@ -6,6 +7,35 @@ from app.handlers.dashboard import dashboard
 
 registration_state: dict[int, dict] = {}
 
+
+# ------------------- KEYBOARD LOGIC -------------------
+def show_main_menu(message):
+    tg_id = message.from_user.id
+    user = User(tg_id)
+    user.load()
+
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+
+    if not user.exists or not user.is_registered:
+        # ❌ user is NOT logged in yet → show register & login
+        keyboard.add(
+            types.KeyboardButton("📝 Register"),
+            types.KeyboardButton("🔐 Login")
+        )
+    else:
+        # ✅ user is logged in → show only Dashboard
+        keyboard.add(
+            types.KeyboardButton("📄 Dashboard")
+        )
+
+    bot.send_message(
+        message.chat.id,
+        "Choose an option:",
+        reply_markup=keyboard
+    )
+
+
+# ------------------- REGISTRATION FLOW -------------------
 def start_registration(message, user: User):
     tg_id = message.from_user.id
 
@@ -15,47 +45,48 @@ def start_registration(message, user: User):
         "user": user,
     }
 
-    bot.reply_to(message, "Start the registration.\n"
-                          "Write down your email:")
+    bot.reply_to(message, "Start registration.\nWrite down your email:")
+
 
 @bot.message_handler(func=lambda m: m.text and not m.text.startswith('/') and m.from_user.id in registration_state)
 def registration_flow(message):
     tg_id = message.from_user.id
-
-    if tg_id not in registration_state:
-        return
-
     state = registration_state[tg_id]
     step = state["step"]
     profile: Profile = state["profile"]
     user: User = state["user"]
 
     if step == "email":
-        email = message.text.strip()
-        profile.email = email
+        profile.email = message.text.strip()
         profile.save()
 
         state["step"] = "fullname"
-        bot.reply_to(message, "Thank you! Now your firstname and surname:")
+        bot.reply_to(message, "Thank you! Now enter your firstname and surname:")
         return
 
     if step == "fullname":
-        fullname = message.text.strip()
-        profile.fullname = fullname
+        profile.fullname = message.text.strip()
         profile.save()
         user.set_registered()
         registration_state.pop(tg_id, None)
+
         bot.reply_to(message, "Registration completed ✅")
-        dashboard(message)
+
+        show_main_menu(message)   # ✅ update keyboard after registration
+        dashboard(message)        # optional: immediately show dashboard
         return
 
+
+# ------------------- COMMANDS -------------------
 @bot.message_handler(commands=['register'])
 def register_handler(message):
     tg_id = message.from_user.id
     user = User(tg_id)
     user.load()
+
     if user.is_registered:
         bot.reply_to(message, "You are already registered ✅")
+        show_main_menu(message)
         dashboard(message)
         return
 
@@ -68,20 +99,24 @@ def login_handler(message):
     user = User(tg_id)
     user.load()
 
-    if not user.exists:
-        bot.reply_to(message, "You are not registered. Please, use /register.")
+    if not user.exists or not user.is_registered:
+        bot.reply_to(message, "You are not registered. Please use /register.")
         return
 
-    if not user.is_registered:
-        bot.reply_to(message, "You are not registered. Please, use /register.")
-        return
+    bot.reply_to(message, "You are logged in ✅")
 
-    bot.reply_to(message, "You are in your account ✅")
+    show_main_menu(message)   # ✅ update keyboard after login
     dashboard(message)
 
-@bot.message_handler(func=lambda m: m.text in ['📝 Register', '🔐 Login'])
+
+# ------------------- BUTTON HANDLERS -------------------
+@bot.message_handler(func=lambda m: m.text in ['📝 Register', '🔐 Login', '📄 Dashboard', 'Dashboard'])
 def main_menu_buttons(message):
-    if message.text == '📝 Register':
+    if message.text in ['📝 Register']:
         return register_handler(message)
-    elif message.text == '🔐 Login':
+
+    if message.text in ['🔐 Login']:
         return login_handler(message)
+
+    if message.text in ['📄 Dashboard', 'Dashboard']:
+        return dashboard(message)
