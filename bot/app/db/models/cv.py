@@ -1,5 +1,6 @@
 class CV:
-    def __init__(self, user_id: int, firstname: str, lastname: str, email: str, phone: str, education: str, experience: int, skills: list, languages: list, projects: str):
+    # def init(self, user_id: int, firstname: str, lastname: str, email: str, phone: str, education: str, experience: int, skills: list, languages: list, projects: str):
+    def __init__(self, user_id: str, firstname: str, lastname: str, email: str, phone: str, education: str, experience: str, skills: str, languages: str, projects: str):
         self.user_id = user_id #auto_generated
         self.firstname = firstname #Lida
         self.lastname = lastname #Sokha
@@ -10,7 +11,3 @@ class CV:
         self.skills = skills #for the start only in text but after this list of skills ['skill1', 'skill2']
         self.languages = languages #text for start but after this list of languages ['language1, level', 'language2, level']
         self.projects = projects #text
-
-     
-        
-

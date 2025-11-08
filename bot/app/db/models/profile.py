@@ -1,23 +1,12 @@
+from app.db.models.cv import CV
 from app.db.database import db
 
-class CV:
-    def __init__(self, firstname="", lastname="", email="", phone="", education=None, experience=None, skills=None, languages=None, projects=None):
-        self.firstname = firstname
-        self.lastname = lastname
-        self.email = email
-        self.phone = phone
-        self.education = education or []
-        self.experience = experience or []
-        self.skills = skills or []
-        self.languages = languages or []
-        self.projects = projects or []
-
 class Profile:
-    def __init__(self, tg_id, fullname="", email="", cv=None):
-        self.tg_id = tg_id
+    def __init__(self, user_id: int, fullname: str = "", email: str = ""):
+        self.tg_id = user_id
         self.fullname = fullname
         self.email = email
-        self.cv = cv or CV()
+        self.cv = CV(None, None, None, None, None, None, None, None, None, None) # Ініціалізуємо порожній CV
 
     def save(self):
         db.profiles.update_one(
@@ -41,6 +30,7 @@ class Profile:
             },
             upsert=True,
         )
+        
     @staticmethod
     def save_template(tg_id, template):
         db.profiles.update_one(
@@ -48,3 +38,52 @@ class Profile:
             {"$set": {"template": template}},
             upsert=True
         )
+
+    def load(self):
+        profile = db.profiles.find_one({"tg_id": self.tg_id})
+        if profile:
+            self.fullname = profile.get("fullname", "")
+            self.email = profile.get("email", "")
+            cv_data = profile.get("cv", {})
+            self.cv = CV(
+                self.tg_id,
+                cv_data.get("firstname", ""),
+                cv_data.get("lastname", ""),
+                cv_data.get("email", ""),
+                cv_data.get("phone", ""),
+                cv_data.get("education", ""),
+                cv_data.get("experience", 0),
+                cv_data.get("skills", []),
+                cv_data.get("languages", []),
+                cv_data.get("projects", "")
+            )
+        return profile
+
+    def exists(self):
+        profile = db.profiles.find_one({"tg_id": self.tg_id})
+        return profile is not None
+
+    @staticmethod
+    def get_by_tg_id(tg_id: int):
+        profile_data = db.profiles.find_one({"tg_id": tg_id})
+        if profile_data:
+            profile = Profile(
+                profile_data["tg_id"],
+                profile_data.get("fullname", ""),
+                profile_data.get("email", ""),)
+            cv_data = profile_data.get("cv", {})
+
+            profile.cv = CV(
+                profile.tg_id,
+                cv_data.get("firstname", ""),
+                cv_data.get("lastname", ""),
+                cv_data.get("email", ""),
+                cv_data.get("phone", ""),
+                cv_data.get("education", ""),
+                cv_data.get("experience", 0),
+                cv_data.get("skills", []),
+                cv_data.get("languages", []),
+                cv_data.get("projects", "")
+            )
+            return profile
+        return None

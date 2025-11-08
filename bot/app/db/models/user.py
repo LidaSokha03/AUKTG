@@ -7,7 +7,7 @@ class User:
 
     def save(self):
         db.users.insert_one({
-            "tg_username": self.tg_id,
+            "tg_id": self.tg_id,
             "is_registered": False
         })
 
@@ -26,7 +26,7 @@ class User:
 
     def registered(self):
         user = db.users.find_one({
-            "tg_username": self.tg_id
+            "tg_id": self.tg_id
         })
         if user:
             self.is_registered = user.get("is_registered", False)
@@ -34,7 +34,7 @@ class User:
 
     def set_registered(self):
         db.users.update_one(
-            {"tg_username": self.tg_id},
+            {"tg_id": self.tg_id},
             {"$set": {"is_registered": True}}
         )
         self.is_registered = True
