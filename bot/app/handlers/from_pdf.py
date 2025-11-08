@@ -36,18 +36,6 @@ def send_welcome(message):
 def export_pdf(message):
     chat_id = message.chat.id
 
-    # cv_data = CV(
-    #     user_id="message.from_user.id",
-    #     firstname="Lida",
-    #     lastname="Sokha",
-    #     email="lidasosokha@gmail.com",
-    #     phone="+380964692379",
-    #     experience='nu9coiuetbvequio;qttttttttttttttttttiewrueiboyceiocecioeityctyuycw4iultvq34iutyq34tuiqcl4c34n834nox5y34c5834yn534y8c5n8nynttyuioljhfdsdfhjkljgfdssxdfghjkhgfdrtjkl;outedfvbkli76tghjkl;[p0o8uhjkl;[p0987yhjkl;[-0865rtyikop;oiytredfghjk]]]',
-    #     education="Bachelor's Degree in BA, UCU",
-    #     courses="kasoadchdihdshhvhjdsh",
-    #     skills='nu9coiuetbvequio;qttttttttttttttttttiewrueiboyceiocecioeityctyuycw4iultvq34iutyq34tuiqcl4c34n834nox5y34c5834yn534y8c5n8nynttyuioljhfdsdfhjkljgfdssxdfghjkhgfdrtjkl;outedfvbkli76tghjkl;[p0o8uhjkl;[p0987yhjkl;[-0865rtyikop;oiytredfghjk]]]'
-    # )
-
     cv_data = CV(
         user_id=str(chat_id),
         firstname="Lida",
