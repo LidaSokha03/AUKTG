@@ -22,12 +22,12 @@ DIFFICULTY_SETTINGS = {
 
 # Категорії питань
 CATEGORIES = {
-    "python": "🐍 Python",
-    "javascript": "💛 JavaScript",
-    "algorithms": "🧮 Algorithms",
-    "databases": "🗄️ Databases",
-    "system_design": "🏗️ System Design",
-    "mixed": "🎲 Mixed"
+    "python": " -> Python",
+    "javascript": " -> JavaScript",
+    "algorithms": " -> Algorithms",
+    "databases": " -> Databases",
+    "system_design": " -> System Design",
+    "mixed": "Mixed"
 }
 
 
