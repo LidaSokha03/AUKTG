@@ -47,7 +47,7 @@ class Profile:
                 "$push": {
                     "cv_history": cv_data,
                 },
-            },
+            },},
             upsert=True,
         )
 
