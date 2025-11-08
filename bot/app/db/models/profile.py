@@ -6,7 +6,7 @@ class Profile:
         self.tg_id = user_id
         self.fullname = fullname
         self.email = email
-        self.cv = CV(user_id, "", "", "", "", "", 0, [], [], "", 1)
+        self.cv = CV(user_id, "", "", "", "", "", "", "", "")
 
     def save(self):
         profile_doc = db.profiles.find_one({"tg_id": self.tg_id})
@@ -32,8 +32,7 @@ class Profile:
             "education": self.cv.education,
             "experience": self.cv.experience,
             "skills": self.cv.skills,
-            "languages": self.cv.languages,
-            "projects": self.cv.projects,
+            "courses": self.cv.courses,
         }
 
         db.profiles.update_one(
@@ -42,8 +41,8 @@ class Profile:
                 "$set": {
                     "fullname": self.fullname,
                     "email": self.email,
-
                     "cv": {
+                        "version": self.cv.version,
                         "firstname": self.cv.firstname,
                         "lastname": self.cv.lastname,
                         "email": self.cv.email,
@@ -53,12 +52,15 @@ class Profile:
                         "skills": self.cv.skills,
                         "courses": self.cv.courses,
                     },
-                "$push": {
-                    "cv_history": cv_data,
                 },
+
+                "$push": {
+                    "cv_history": cv_data
+                }
             },
             upsert=True,
         )
+
 
     @staticmethod
     def save_template(tg_id, template):
