@@ -68,6 +68,10 @@ def login_handler(message):
     user = User(tg_id)
     user.load()
 
+    if not user.exists:
+        bot.reply_to(message, "You are not registered. Please, use /register.")
+        return
+
     if not user.is_registered:
         bot.reply_to(message, "You are not registered. Please, use /register.")
         return

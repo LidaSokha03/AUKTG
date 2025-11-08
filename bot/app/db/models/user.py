@@ -14,7 +14,6 @@ class User:
     def exists(self):
         user = db.users.find_one({"tg_id": self.tg_id})
         if user:
-            self.is_registered = user.get("is_registered", False)
             return True
         return False
 

@@ -1,12 +1,13 @@
 from app.db.models.cv import CV
 from app.db.database import db
 
+
 class Profile:
     def __init__(self, user_id: int, fullname: str = "", email: str = ""):
-        self.tg_id = user_id
+        self.tg_id = str(user_id)
         self.fullname = fullname
         self.email = email
-        self.cv = CV(user_id, "", "", "", "", "", 0, [], [], "", 1)
+        self.cv = CV(user_id, "", "", "", "", "", "", "", "", "")
 
     def save(self):
         profile_doc = db.profiles.find_one({"tg_id": self.tg_id})
@@ -32,8 +33,7 @@ class Profile:
             "education": self.cv.education,
             "experience": self.cv.experience,
             "skills": self.cv.skills,
-            "languages": self.cv.languages,
-            "projects": self.cv.projects,
+            "courses": self.cv.courses,
         }
 
         db.profiles.update_one(
@@ -42,17 +42,8 @@ class Profile:
                 "$set": {
                     "fullname": self.fullname,
                     "email": self.email,
-
-                    "cv": {
-                        "firstname": self.cv.firstname,
-                        "lastname": self.cv.lastname,
-                        "email": self.cv.email,
-                        "phone": self.cv.phone,
-                        "education": self.cv.education,
-                        "experience": self.cv.experience,
-                        "skills": self.cv.skills,
-                        "courses": self.cv.courses,
-                    },
+                    "cv": cv_data,
+                },
                 "$push": {
                     "cv_history": cv_data,
                 },
@@ -63,16 +54,16 @@ class Profile:
     @staticmethod
     def save_template(tg_id, template):
         db.profiles.update_one(
-            {"tg_id": tg_id},
+            {"tg_id": str(tg_id)},
             {"$set": {"template": template}},
             upsert=True
         )
+
     @staticmethod
     def save_profile(tg_id, full_name, email, cv):
-        profile = Profile(tg_id, full_name, email)  
+        profile = Profile(tg_id, full_name, email)
         profile.cv = cv
         profile.save()
-
 
     def load(self):
         profile = db.profiles.find_one({"tg_id": self.tg_id})
@@ -89,8 +80,8 @@ class Profile:
                 cv_data.get("education", ""),
                 cv_data.get("experience", ""),
                 cv_data.get("skills", ""),
-                cv_data.get("courses", "")
-
+                cv_data.get("courses", ""),
+                cv_data.get("version", 1),
             )
 
         return profile
@@ -101,12 +92,13 @@ class Profile:
 
     @staticmethod
     def get_by_tg_id(tg_id: int):
-        profile_data = db.profiles.find_one({"tg_id": tg_id})
+        profile_data = db.profiles.find_one({"tg_id": str(tg_id)})
         if profile_data:
             profile = Profile(
                 profile_data["tg_id"],
                 profile_data.get("fullname", ""),
-                profile_data.get("email", ""),)
+                profile_data.get("email", ""),
+            )
             cv_data = profile_data.get("cv", {})
 
             profile.cv = CV(
@@ -118,8 +110,8 @@ class Profile:
                 cv_data.get("education", ""),
                 cv_data.get("experience", ""),
                 cv_data.get("skills", ""),
-                cv_data.get("courses", "")
-
+                cv_data.get("courses", ""),
+                cv_data.get("version", 1),
             )
 
             return profile
