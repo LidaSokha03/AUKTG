@@ -5,3 +5,4 @@ dnspython
 groq
 requests
 fpdf
+python-docx
