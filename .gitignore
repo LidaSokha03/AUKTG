@@ -1,15 +1,63 @@
+# Environment & secrets
 .env
+.env*
+!.env.example
+
 # Python
-__pycache__/
-*.pyc
-*.pyo
+pycache/
+*.py[cod]
+*$py.class
 
 # Virtual environments
-venv/
 .venv/
-.env/
-.env*/
+venv/
+env/
+ENV/
 
-# IDE
+# Build artifacts
+build/
+dist/
+pip-wheel-metadata/
+
+# Temporary files
+*.log
+*.tmp
+*.cache
+*.DS_Store
+
+# Python Bytecode
+*.pyo
+*.pyd
+
+# Jupyter stuff (just in case)
+.ipynb_checkpoints/
+
+# Editor folders
 .vscode/
-.idea/__pycache__/
+.idea/
+
+# OS-specific
+Thumbs.db
+desktop.ini
+
+# Telegram bot generated files
+*.pdf
+*.docx
+
+# MongoDB / DB files (if local DB ever gets dumped)
+*.bson
+*.json
+*.sqlite3
+
+# Caches
+.pytest_cache/
+.mypy_cache/
+.cache/
+
+# Backup files
+*~
+*.swp
+*.swo
+
+# Project specific temporary files
+bot/**/pycache/
