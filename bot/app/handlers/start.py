@@ -12,12 +12,10 @@ def send_welcome(message):
         user.save()
 
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    register_button = types.KeyboardButton('Registration')
-    login_button = types.KeyboardButton('Login')
-    interview_button = types.KeyboardButton('Interview')  # кнопка інтервʼю ✅
+    register_button = types.KeyboardButton('📝 Register')
+    login_button = types.KeyboardButton('🔐 Login')
 
     markup.add(register_button, login_button)
-    markup.add(interview_button)
 
     bot.send_message(
     message.chat.id,
