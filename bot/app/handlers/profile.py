@@ -73,7 +73,9 @@ def ask_education(message, firstname, lastname, email, phone):
     bot.send_message(
         message.chat.id,
         "🎓 Enter your *Education*:\n\n-> Example:\n"
-        "**Bachelor’s Degree in Business Analytics, UCU (2022–2026)**",
+        "**Ukrainian Catholic University: Lviv, Ukraine\n\
+Bachelor's Degree in Business Analytics (2021 - 2025)\n\
+- Coursework: Data Visualization, Machine Learning, Project Management, Marketing Analytics. etc...**",
         parse_mode="Markdown",
     )
     bot.register_next_step_handler(message, save_education, firstname, lastname, email, phone)
@@ -89,7 +91,9 @@ def ask_experience(message, firstname, lastname, email, phone, education):
     bot.send_message(
         message.chat.id,
         "💼 Describe your *Experience*:\n\n-> Example:\n"
-        "**Marketing Intern at SoftServe (June 2023 – September 2023)**",
+        "**Marketing Intern: SoftServe (June 2023 - September 2023)\n \
+- Assisted with digital marketing campaigns focusing on social media and content analytics.\n\
+- Created 15+ social posts that increased engagement by 25%. etc...**",
         parse_mode="Markdown",
     )
     bot.register_next_step_handler(message, save_experience, firstname, lastname, email, phone, education)
@@ -105,7 +109,7 @@ def ask_skills(message, firstname, lastname, email, phone, education, experience
     bot.send_message(
         message.chat.id,
         "💪 Enter your *Skills* (comma separated):\n\n-> Example:\n"
-        "**Python, SQL, Excel, Communication**",
+        "**Python, SQL, Excel, Communication etc...**",
         parse_mode="Markdown",
     )
     bot.register_next_step_handler(message, save_skills, firstname, lastname, email, phone, education, experience)
@@ -121,7 +125,8 @@ def ask_courses(message, firstname, lastname, email, phone, education, experienc
     bot.send_message(
         message.chat.id,
         "📚 Enter *Courses / Certifications*:\n\n-> Example:\n"
-        "**Google Data Analytics, EPAM Soft Skills, LinkedIn Python course**",
+        "**Google Data Analytics Professional Certificate - Coursera (2023)\n\
+- Hands-on training in SQL, Tableau, and data cleaning techniques. etc...**",
         parse_mode="Markdown",
     )
     bot.register_next_step_handler(message, finish_profile, firstname, lastname, email, phone, education, experience, skills)
