@@ -54,6 +54,9 @@ def cleanup_user_state(user_id):
 @bot.message_handler(commands=["interview"])
 def start_mcq(msg):
     user_id = msg.from_user.id
+    
+    print(f"[DEBUG] /interview command from user {user_id}")
+    
     cleanup_user_state(user_id)
 
     kb = InlineKeyboardMarkup(row_width=2)
