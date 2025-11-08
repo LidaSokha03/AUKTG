@@ -6,15 +6,43 @@ class Profile:
         self.tg_id = user_id
         self.fullname = fullname
         self.email = email
-        self.cv = CV(None, None, None, None, None, None, None, None, None, None) # Ініціалізуємо порожній CV
+        self.cv = CV(user_id, "", "", "", "", "", 0, [], [], "", 1)
 
     def save(self):
+        profile_doc = db.profiles.find_one({"tg_id": self.tg_id})
+
+        last_version = 0
+        if profile_doc:
+            history = profile_doc.get("cv_history", [])
+            if history:
+                last_version = history[-1].get("version", 0)
+            else:
+                cv_doc = profile_doc.get("cv", {})
+                last_version = cv_doc.get("version", 0)
+
+        next_version = last_version + 1
+        self.cv.version = next_version
+
+        cv_data = {
+            "version": self.cv.version,
+            "firstname": self.cv.firstname,
+            "lastname": self.cv.lastname,
+            "email": self.cv.email,
+            "phone": self.cv.phone,
+            "education": self.cv.education,
+            "experience": self.cv.experience,
+            "skills": self.cv.skills,
+            "languages": self.cv.languages,
+            "projects": self.cv.projects,
+        }
+
         db.profiles.update_one(
             {"tg_id": self.tg_id},
             {
                 "$set": {
                     "fullname": self.fullname,
                     "email": self.email,
+
                     "cv": {
                         "firstname": self.cv.firstname,
                         "lastname": self.cv.lastname,
@@ -23,14 +51,15 @@ class Profile:
                         "education": self.cv.education,
                         "experience": self.cv.experience,
                         "skills": self.cv.skills,
-                        "languages": self.cv.languages,
-                        "projects": self.cv.projects,
+                        "courses": self.cv.courses,
                     },
-                }
+                "$push": {
+                    "cv_history": cv_data,
+                },
             },
             upsert=True,
         )
-        
+
     @staticmethod
     def save_template(tg_id, template):
         db.profiles.update_one(
@@ -38,6 +67,12 @@ class Profile:
             {"$set": {"template": template}},
             upsert=True
         )
+    @staticmethod
+    def save_profile(tg_id, full_name, email, cv):
+        profile = Profile(tg_id, full_name, email)  
+        profile.cv = cv
+        profile.save()
+
 
     def load(self):
         profile = db.profiles.find_one({"tg_id": self.tg_id})
@@ -52,11 +87,12 @@ class Profile:
                 cv_data.get("email", ""),
                 cv_data.get("phone", ""),
                 cv_data.get("education", ""),
-                cv_data.get("experience", 0),
-                cv_data.get("skills", []),
-                cv_data.get("languages", []),
-                cv_data.get("projects", "")
+                cv_data.get("experience", ""),
+                cv_data.get("skills", ""),
+                cv_data.get("courses", "")
+
             )
+
         return profile
 
     def exists(self):
@@ -80,10 +116,11 @@ class Profile:
                 cv_data.get("email", ""),
                 cv_data.get("phone", ""),
                 cv_data.get("education", ""),
-                cv_data.get("experience", 0),
-                cv_data.get("skills", []),
-                cv_data.get("languages", []),
-                cv_data.get("projects", "")
+                cv_data.get("experience", ""),
+                cv_data.get("skills", ""),
+                cv_data.get("courses", "")
+
             )
+
             return profile
         return None
