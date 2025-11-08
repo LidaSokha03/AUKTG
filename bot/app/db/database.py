@@ -13,4 +13,4 @@ users = db["users"]
 profiles = db["profiles"]
 
 
-print("✅ Колекції:", db.list_collection_names())
+print("✅ Connected to MongoDB")
