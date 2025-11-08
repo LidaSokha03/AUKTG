@@ -57,7 +57,7 @@ app/
 
 ## Installation and Run
 1. Clone the repository  
-# 1. Copy Git repository URL: on the GitHub page of this repository, click the green `<> Code` button > `📋` button to the right of the repository url.
+# 1. Copy Git repository URL: on the GitHub page of this repository, click the green `<> Code` button > copy button to the right of the repository url.
 
 # 2. Find a place where you want this project to live at.
 
