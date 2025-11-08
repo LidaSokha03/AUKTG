@@ -8,7 +8,6 @@ from app.handlers.dashboard import dashboard
 registration_state: dict[int, dict] = {}
 
 
-# ------------------- KEYBOARD LOGIC -------------------
 def show_main_menu(message):
     tg_id = message.from_user.id
     user = User(tg_id)
@@ -17,13 +16,11 @@ def show_main_menu(message):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
 
     if not user.exists or not user.is_registered:
-        # ❌ user is NOT logged in yet → show register & login
         keyboard.add(
             types.KeyboardButton("📝 Register"),
             types.KeyboardButton("🔐 Login")
         )
     else:
-        # ✅ user is logged in → show only Dashboard
         keyboard.add(
             types.KeyboardButton("📄 Dashboard")
         )
@@ -35,7 +32,6 @@ def show_main_menu(message):
     )
 
 
-# ------------------- REGISTRATION FLOW -------------------
 def start_registration(message, user: User):
     tg_id = message.from_user.id
 
@@ -72,12 +68,11 @@ def registration_flow(message):
 
         bot.reply_to(message, "Registration completed ✅")
 
-        show_main_menu(message)   # ✅ update keyboard after registration
-        dashboard(message)        # optional: immediately show dashboard
+        show_main_menu(message)   
+        dashboard(message) 
         return
 
 
-# ------------------- COMMANDS -------------------
 @bot.message_handler(commands=['register'])
 def register_handler(message):
     tg_id = message.from_user.id
@@ -105,11 +100,10 @@ def login_handler(message):
 
     bot.reply_to(message, "You are logged in ✅")
 
-    show_main_menu(message)   # ✅ update keyboard after login
+    show_main_menu(message)
     dashboard(message)
 
 
-# ------------------- BUTTON HANDLERS -------------------
 @bot.message_handler(func=lambda m: m.text in ['📝 Register', '🔐 Login', '📄 Dashboard', 'Dashboard'])
 def main_menu_buttons(message):
     if message.text in ['📝 Register']:
