@@ -9,8 +9,9 @@ import app.handlers.dashboard
 import app.handlers.profile
 import app.handlers.cv_template
 import app.handlers.language
-import app.handlers.cv_history
-import app.handlers.form_docx
+import app.handlers.clear_history
+
+
 
 if __name__ == "__main__":
     print("🚀 Bot is running...")
