@@ -30,6 +30,14 @@ class Profile:
             },
             upsert=True,
         )
+        
+    @staticmethod
+    def save_template(tg_id, template):
+        db.profiles.update_one(
+            {"tg_id": tg_id},
+            {"$set": {"template": template}},
+            upsert=True
+        )
 
     def load(self):
         profile = db.profiles.find_one({"tg_id": self.tg_id})
