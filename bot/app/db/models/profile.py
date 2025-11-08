@@ -42,17 +42,6 @@ class Profile:
                 "$set": {
                     "fullname": self.fullname,
                     "email": self.email,
-                    "cv": {
-                        "version": self.cv.version,
-                        "firstname": self.cv.firstname,
-                        "lastname": self.cv.lastname,
-                        "email": self.cv.email,
-                        "phone": self.cv.phone,
-                        "education": self.cv.education,
-                        "experience": self.cv.experience,
-                        "skills": self.cv.skills,
-                        "courses": self.cv.courses,
-                    },
                   "cv": cv_data,
                 },
 
