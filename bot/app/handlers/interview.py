@@ -13,14 +13,12 @@ user_timers = {}
 MAX_LEN = 28
 QUESTION_TIMEOUT = 60
 
-# Налаштування складності
 DIFFICULTY_SETTINGS = {
     "easy": {"questions": 5, "time": 90, "emoji": "🟢"},
     "medium": {"questions": 7, "time": 60, "emoji": "🟡"},
     "hard": {"questions": 10, "time": 45, "emoji": "🔴"}
 }
 
-# Категорії питань
 CATEGORIES = {
     "python": " -> Python",
     "javascript": " -> JavaScript",
@@ -246,8 +244,6 @@ def show_stats(call: CallbackQuery):
     total_score = sum(r['score'] for r in records)
     total_possible = sum(r.get('total', 5) for r in records)
     avg_percentage = (total_score / total_possible * 100) if total_possible > 0 else 0
-    
-    # Streak calculation
     current_streak = 0
     best_streak = 0
     temp_streak = 0
@@ -260,14 +256,11 @@ def show_stats(call: CallbackQuery):
         else:
             temp_streak = 0
     
-    # Last interview
     last = records[-1]
     last_percentage = (last['score'] / last.get('total', 5)) * 100
     
     if last_percentage >= 60:
         current_streak = temp_streak
-    
-    # Determine rank
     if avg_percentage >= 90:
         rank = "🏆 Master"
     elif avg_percentage >= 80:
@@ -331,11 +324,7 @@ def update_timer(user_id, msg_id, chat_id, question_text, time_left):
         for i, opt in enumerate(user_quiz[user_id]["current"]["options"]):
             pretty = format_text(opt)
             kb.add(InlineKeyboardButton(pretty, callback_data=f"answer_{i}_{current_q}"))
-        
-        # Додаємо кнопку Skip
         kb.add(InlineKeyboardButton("⏭️ Skip Question", callback_data=f"skip_{current_q}"))
-        
-        # Emoji для таймера
         if time_left <= 10:
             timer_emoji = "🔴"
         elif time_left <= 30:
@@ -372,14 +361,13 @@ def send_new_question(user_id):
             pass
         del user_timers[user_id]
 
-    # Зберігаємо час початку питання
     user_quiz[user_id]["question_start_time"] = datetime.now()
 
     category = user_quiz[user_id].get("category", "mixed")
     difficulty = user_quiz[user_id].get("difficulty", "medium")
     
-    # Тут можна передати category та difficulty в generate_mcq_question
-    q = generate_mcq_question()  # TODO: add category and difficulty params
+
+    q = generate_mcq_question()
 
     if not q or "options" not in q or "correct_index" not in q:
         q = {
@@ -545,8 +533,6 @@ def handle_answer(call: CallbackQuery):
     
     user_quiz[user_id]["processing"] = True
     user_quiz[user_id]["answered"].append(current_q)
-    
-    # Рахуємо час відповіді
     question_start = user_quiz[user_id].get("question_start_time")
     if question_start:
         time_spent = (datetime.now() - question_start).total_seconds()
@@ -596,12 +582,8 @@ def finish_interview(user_id):
     total_q = user_quiz[user_id].get("total_questions", 5)
     difficulty = user_quiz[user_id].get("difficulty", "medium")
     category = user_quiz[user_id].get("category", "mixed")
-    
-    # Рахуємо загальний час
     start_time = user_quiz[user_id].get("start_time")
     total_time = (datetime.now() - start_time).total_seconds() if start_time else 0
-    
-    # Середній час на питання
     time_spent = user_quiz[user_id].get("time_spent", [])
     avg_time = sum(time_spent) / len(time_spent) if time_spent else 0
 
@@ -674,8 +656,6 @@ def callback_view_history(call: CallbackQuery):
             total = len(total)
         r['total'] = total
         valid_records.append(r)
-    
-    # Рахуємо середній бал правильно
     total_score = sum(r['score'] for r in valid_records)
     total_possible = sum(r['total'] for r in valid_records)
     avg_percentage = (total_score / total_possible * 100) if total_possible > 0 else 0
@@ -683,18 +663,13 @@ def callback_view_history(call: CallbackQuery):
     text = f"📜 <b>Interview History</b>\n\n"
     text += f"Total: {total_interviews} interview(s)\n"
     text += f"Average: {avg_percentage:.1f}%\n\n"
-
-    # Показуємо останні 5 інтерв'ю
     recent_records = valid_records[-5:]
     
     kb = InlineKeyboardMarkup(row_width=1)
     
     for idx, r in enumerate(recent_records):
-        # Правильна нумерація: якщо всього 10 інтерв'ю, а показуємо останні 5, то це 6, 7, 8, 9, 10
         interview_number = total_interviews - len(recent_records) + idx + 1
-        
         percentage = (r['score'] / r['total']) * 100
-        
         if percentage >= 80:
             result_emoji = "🌟"
         elif percentage >= 60:
@@ -704,11 +679,9 @@ def callback_view_history(call: CallbackQuery):
         
         text += f"{result_emoji} <b>Interview #{interview_number}</b>\n"
         text += f"Score: {r['score']}/{r['total']} ({percentage:.0f}%) | {r['timestamp'].strftime('%d.%m %H:%M')}\n"
-        
-        # Додаємо кнопку для детального перегляду
         kb.add(InlineKeyboardButton(
             f"📖 View Interview #{interview_number} Details",
-            callback_data=f"view_interview_{interview_number - 1}"  # Індекс в масиві
+            callback_data=f"view_interview_{interview_number - 1}"
         ))
         
         text += "\n"
@@ -762,8 +735,6 @@ def view_interview_details(call: CallbackQuery):
         f"📅 Date: {r['timestamp'].strftime('%d.%m.%Y %H:%M')}\n\n"
         f"━━━━━━━━━━━━━━━━━━━━\n\n"
     )
-    
-    # Додаємо всі питання
     questions = r.get('questions', [])
     
     if questions:
@@ -774,10 +745,7 @@ def view_interview_details(call: CallbackQuery):
                 question_text = q.get('question', 'N/A')
                 options = q.get('options', [])
                 correct_idx = q.get('correct_index', 0)
-                
                 text += f"<b>{i}. {question_text}</b>\n"
-                
-                # Показуємо всі варіанти з позначкою правильної відповіді
                 for idx, opt in enumerate(options):
                     if idx == correct_idx:
                         text += f"   ✅ {opt}\n"
@@ -793,14 +761,10 @@ def view_interview_details(call: CallbackQuery):
         InlineKeyboardButton("📜 Back to History", callback_data="view_history"),
         InlineKeyboardButton("🎯 New Interview", callback_data="quick_start")
     )
-    
-    # Розбиваємо на частини, якщо текст занадто довгий
     if len(text) > 4000:
-        # Відправляємо першу частину
         parts = [text[i:i+4000] for i in range(0, len(text), 4000)]
         for part in parts[:-1]:
             bot.send_message(call.message.chat.id, part, parse_mode="HTML")
-        # Останню частину з кнопками
         bot.send_message(call.message.chat.id, parts[-1], parse_mode="HTML", reply_markup=kb)
     else:
         bot.send_message(call.message.chat.id, text, parse_mode="HTML", reply_markup=kb)

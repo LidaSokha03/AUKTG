@@ -13,9 +13,6 @@ def start_profile(message):
 @bot.callback_query_handler(func=lambda c: c.data == "profile")
 def start_profile_callback(call):
     ask_full_name(call.message)
-
-
-# 1. FULL NAME
 def ask_full_name(message):
     bot.send_message(
         message.chat.id,
@@ -36,9 +33,6 @@ def save_full_name(message):
 
     firstname, lastname = full_name.split(" ", 1)
     ask_email(message, firstname, lastname)
-
-
-# 2. EMAIL
 def ask_email(message, firstname, lastname):
     bot.send_message(
         message.chat.id,
@@ -52,8 +46,6 @@ def save_email(message, firstname, lastname):
     email = message.text.strip()
     ask_phone(message, firstname, lastname, email)
 
-
-# 3. PHONE NUMBER
 def ask_phone(message, firstname, lastname, email):
     bot.send_message(
         message.chat.id,
@@ -68,7 +60,6 @@ def save_phone(message, firstname, lastname, email):
     ask_education(message, firstname, lastname, email, phone)
 
 
-# 4. EDUCATION
 def ask_education(message, firstname, lastname, email, phone):
     bot.send_message(
         message.chat.id,
@@ -86,7 +77,6 @@ def save_education(message, firstname, lastname, email, phone):
     ask_experience(message, firstname, lastname, email, phone, education)
 
 
-# 5. EXPERIENCE
 def ask_experience(message, firstname, lastname, email, phone, education):
     bot.send_message(
         message.chat.id,
@@ -104,7 +94,6 @@ def save_experience(message, firstname, lastname, email, phone, education):
     ask_skills(message, firstname, lastname, email, phone, education, experience)
 
 
-# 6. SKILLS
 def ask_skills(message, firstname, lastname, email, phone, education, experience):
     bot.send_message(
         message.chat.id,
@@ -120,7 +109,6 @@ def save_skills(message, firstname, lastname, email, phone, education, experienc
     ask_courses(message, firstname, lastname, email, phone, education, experience, skills)
 
 
-# 7. COURSES
 def ask_courses(message, firstname, lastname, email, phone, education, experience, skills):
     bot.send_message(
         message.chat.id,
@@ -132,7 +120,6 @@ def ask_courses(message, firstname, lastname, email, phone, education, experienc
     bot.register_next_step_handler(message, finish_profile, firstname, lastname, email, phone, education, experience, skills)
 
 
-# ✅ FINISH
 def finish_profile(message, firstname, lastname, email, phone, education, experience, skills):
     courses = message.text.strip()
 

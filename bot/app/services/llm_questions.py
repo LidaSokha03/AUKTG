@@ -124,19 +124,11 @@ Example:
         )
         
         text = r.choices[0].message.content.strip()
-        
-        # Видаляємо markdown форматування
         text = text.replace("```json", "").replace("```", "").strip()
-        
-        # Шукаємо JSON об'єкт в тексті
         json_match = re.search(r'\{[^}]+\}', text, re.DOTALL)
         if json_match:
             text = json_match.group()
-        
-        # Парсимо JSON
         data = json.loads(text)
-        
-        # Валідація структури
         if not all(k in data for k in ["question", "options", "correct_index"]):
             raise ValueError("Missing required fields")
         
@@ -145,8 +137,7 @@ Example:
         
         if not isinstance(data["correct_index"], int) or data["correct_index"] not in [0, 1, 2, 3]:
             raise ValueError("correct_index must be 0, 1, 2, or 3")
-        
-        # Перевірка, що питання та опції не порожні
+
         if not data["question"] or not all(data["options"]):
             raise ValueError("Question or options are empty")
         
@@ -159,7 +150,6 @@ Example:
         print(f"LLM error: {e}")
         print(f"Response text: {text if 'text' in locals() else 'No response'}")
     
-    # Fallback - повертаємо випадкове питання відповідної складності
     print(f"Using fallback question (category: {category}, difficulty: {difficulty})")
     
     fallback_pool = FALLBACK_QUESTIONS.get(difficulty, FALLBACK_QUESTIONS["medium"])
@@ -186,7 +176,6 @@ def generate_question_batch(count=5, category="mixed", difficulty="medium"):
             questions.append(question)
         except Exception as e:
             print(f"Error generating question: {e}")
-            # Додаємо fallback
             fallback_pool = FALLBACK_QUESTIONS.get(difficulty, FALLBACK_QUESTIONS["medium"])
             questions.append(random.choice(fallback_pool))
     
@@ -204,7 +193,6 @@ def validate_question(question):
         bool - True якщо валідне
     """
     try:
-        # Перевірка структури
         if not isinstance(question, dict):
             return False
         
@@ -212,18 +200,15 @@ def validate_question(question):
         if not all(k in question for k in required_keys):
             return False
         
-        # Перевірка options
         if not isinstance(question["options"], list) or len(question["options"]) != 4:
             return False
         
-        # Перевірка correct_index
         if not isinstance(question["correct_index"], int):
             return False
         
         if question["correct_index"] not in [0, 1, 2, 3]:
             return False
         
-        # Перевірка, що все не пусте
         if not question["question"].strip():
             return False
         
@@ -236,29 +221,24 @@ def validate_question(question):
         return False
 
 
-# Тестування
 if __name__ == "__main__":
     print("=== Testing question generation ===\n")
     
-    # Тест 1: Easy Python
     print("1. Easy Python question:")
     q1 = generate_mcq_question("python", "easy")
     print(json.dumps(q1, indent=2))
     print(f"Valid: {validate_question(q1)}\n")
     
-    # Тест 2: Hard Algorithms
     print("2. Hard Algorithms question:")
     q2 = generate_mcq_question("algorithms", "hard")
     print(json.dumps(q2, indent=2))
     print(f"Valid: {validate_question(q2)}\n")
     
-    # Тест 3: Mixed Medium
     print("3. Mixed Medium question:")
     q3 = generate_mcq_question("mixed", "medium")
     print(json.dumps(q3, indent=2))
     print(f"Valid: {validate_question(q3)}\n")
     
-    # Тест 4: Batch generation
     print("4. Generating batch of 3 questions:")
     batch = generate_question_batch(3, "javascript", "medium")
     for i, q in enumerate(batch, 1):

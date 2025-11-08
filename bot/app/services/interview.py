@@ -17,7 +17,6 @@ def save_interview(user_id: int, answers: list, score: int):
 
     file_path = _file(user_id)
 
-    # Завантажуємо стару історію або створюємо нову
     if os.path.exists(file_path):
         with open(file_path, "r") as f:
             history = json.load(f)
