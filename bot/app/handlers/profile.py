@@ -12,6 +12,7 @@ def start_profile_command(message):
 # коли користувач натискає кнопку "✏️ Заповнити CV"
 @bot.callback_query_handler(func=lambda c: c.data == "profile")
 def start_profile_callback(call):
+
     ask_full_name(call.message)
 
 
