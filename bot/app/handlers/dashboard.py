@@ -5,9 +5,9 @@ from app.bot_instance import bot
 def dashboard(message):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("✏️ Make up CV", callback_data="profile"))
-    markup.add(types.InlineKeyboardButton("🌐 Language", callback_data="language"))
-    markup.add(types.InlineKeyboardButton("🗂 CV history", callback_data="history"))
+    markup.add(types.InlineKeyboardButton("📁 CV history", callback_data="cv_history"))
     markup.add(types.InlineKeyboardButton("📝 Start interview", callback_data="interview"))
+    markup.add(types.InlineKeyboardButton("🌐 Language", callback_data="language"))
 
     bot.send_message(
         message.chat.id,

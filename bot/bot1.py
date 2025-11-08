@@ -9,6 +9,7 @@ import app.handlers.dashboard
 import app.handlers.profile
 import app.handlers.cv_template
 import app.handlers.language
+import app.handlers.cv_history
 import app.handlers.form_docx
 
 if __name__ == "__main__":

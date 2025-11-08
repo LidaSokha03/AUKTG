@@ -30,14 +30,15 @@ def get_skills(message, full_name, email):
 
 def finish_profile(message, full_name, email, skills):
     project = message.text
+    tg_id = message.from_user.id
 
-    Profile.save(
-        tg_id=message.from_user.id,
-        full_name=full_name,
-        email=email,
-        skills=skills,
-        project=project
-    )
+    profile = Profile(user_id=tg_id, fullname=full_name, email=email)
+
+    profile.cv.email = email 
+    profile.cv.skills = [s.strip() for s in skills.split(",")]
+    profile.cv.projects = project
+
+    profile.save()
 
     bot.send_message(message.chat.id, "✅ CV збережено!\n➡️ /dashboard")
 
