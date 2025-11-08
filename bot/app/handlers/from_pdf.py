@@ -6,7 +6,7 @@ from app.services.pdf_export import cv_to_pdf
 from pathlib import Path
 
 
-@bot.message_handler(commands=['form_pdf'])
+@bot.message_handler(commands=['form_pdf_docx'])
 def send_welcome(message):
     tg_id = message.from_user.id
     user = User(tg_id)
@@ -22,11 +22,12 @@ def send_welcome(message):
 
     bot.send_message(
         message.chat.id,
-        "Вітання! 👋\n"
-        "Виберіть одну опцію з нижче: \n"
-        "/register — Зареєструватися\n"
-        "/login — Увійти\n"
-        "/export_pdf — Згенерувати PDF вашого CV",
+        "Hello!\n"
+        "Choose one from the options: \n"
+        "/register - Register in the system\n"
+        "/login - Log in to your account\n"
+        "/export_pdf - Generate PDF of your CV\n"
+        "/export_docx - Generate DOCX of your CV",
         reply_markup=markup
     )
 
@@ -35,28 +36,59 @@ def send_welcome(message):
 def export_pdf(message):
     chat_id = message.chat.id
 
-    # 1️⃣ Тут ти можеш дістати реальне CV користувача з БД (поки ставимо шаблон)
+    # cv_data = CV(
+    #     user_id="message.from_user.id",
+    #     firstname="Lida",
+    #     lastname="Sokha",
+    #     email="lidasosokha@gmail.com",
+    #     phone="+380964692379",
+    #     experience='nu9coiuetbvequio;qttttttttttttttttttiewrueiboyceiocecioeityctyuycw4iultvq34iutyq34tuiqcl4c34n834nox5y34c5834yn534y8c5n8nynttyuioljhfdsdfhjkljgfdssxdfghjkhgfdrtjkl;outedfvbkli76tghjkl;[p0o8uhjkl;[p0987yhjkl;[-0865rtyikop;oiytredfghjk]]]',
+    #     education="Bachelor's Degree in BA, UCU",
+    #     courses="kasoadchdihdshhvhjdsh",
+    #     skills='nu9coiuetbvequio;qttttttttttttttttttiewrueiboyceiocecioeityctyuycw4iultvq34iutyq34tuiqcl4c34n834nox5y34c5834yn534y8c5n8nynttyuioljhfdsdfhjkljgfdssxdfghjkhgfdrtjkl;outedfvbkli76tghjkl;[p0o8uhjkl;[p0987yhjkl;[-0865rtyikop;oiytredfghjk]]]'
+    # )
+
     cv_data = CV(
-        user_id="message.from_user.id",
+        user_id=str(chat_id),
         firstname="Lida",
         lastname="Sokha",
         email="lidasosokha@gmail.com",
         phone="+380964692379",
-        education="Bachelor's Degree in BA, UCU",
-        experience='8',
-        skills='nu9coiuetbvequio;qttttttttttttttttttiewrueiboyceiocecioeityctyuycw4iul tvq34 iutyq34tuiqcl4c34n834nox5y34c5834yn534y8c5n8nynttyuioljhfdsdfhjkljgfdssxdfghjkhgfdrtjkl;outedfvbkli76tghjkl;[p0o8uhjkl;[p0987yhjkl;[-0865rtyikop;oiytredfghjk]]]',
-        languages='oeoooooooooooooooooooooooooooooooobcccccccccccccccccccccccccccc',
-        projects="steeeeeeeeeeeeeeeeeeeeeeeeeeeb sssssssssssssssssssssssgrfghhhhhhhhhhhhhhhzzzzzzzzzzzzzzzzzzzzzzzzzzzzsghhhhhhhhhhhhhhhhhhhhhhhhhhhhhhjsdghkkkkkkkkkkkkkkkk"
+        experience=(
+            "Marketing Intern: SoftServe (June 2023 - September 2023)\n \
+- Assisted with digital marketing campaigns focusing on social media and content analytics.\n\
+- Created 15+ social posts that increased engagement by 25%.\n\
+- Helped prepare performance reports and worked with the creative team on visual identity.\n\n\
+Project Assistant: UCU Career Center (February 2022 - May 2023)\n\
+- Coordinated internal communication between student bodies and employer partners.\n\
+- Contributed to organizing the university job fair with over 40 companies.\n\
+- Provided administrative support and event logistics management."
+        ),
+        education=(
+            "Ukrainian Catholic University: Lviv, Ukraine\n\
+Bachelor's Degree in Business Analytics (2021 - 2025)\n\
+- Coursework: Data Visualization, Machine Learning, Project Management, Marketing Analytics.\n\
+- GPA: 3.8 / 4.0"
+        ),
+        courses=(
+            "Google Data Analytics Professional Certificate - Coursera (2023)\n\
+- Hands-on training in SQL, Tableau, and data cleaning techniques.\n\n\
+Soft Skills Training - EPAM University (2022)\n\
+- Focused on teamwork, personal productivity, and structured problem-solving.\n\n\
+LinkedIn Learning - Data Visualization with Python and Pandas (2023)"
+        ),
+        skills=(
+            "Python, SQL, Excel, Tableau, Data Analysis, Communication, Project Coordination, \
+Public Speaking, Critical Thinking, Teamwork"
+        )
     )
 
-    # 2️⃣ Створюємо PDF
-    pdf_path, created_at = cv_to_pdf(cv_data)
 
-    # 3️⃣ Відправляємо файл користувачу
+    pdf_path = cv_to_pdf(cv_data)
+
     with open(pdf_path, "rb") as file:
-        bot.send_document(chat_id, file, caption=f"📄 Ваш CV створено!\nСтворено: {created_at:%Y-%m-%d %H:%M}")
+        bot.send_document(chat_id, file, caption="Your PDF CV is ready!")
 
-    # 4️⃣ (опційно) видаляємо зайві старі файли
     exports_dir = Path("exports")
     for f in exports_dir.glob("*.pdf"):
         if f != pdf_path and f.stat().st_mtime < pdf_path.stat().st_mtime - 300:
@@ -68,4 +100,4 @@ def export_pdf(message):
 
 @bot.message_handler(func=lambda message: message.text and not message.text.startswith('/'))
 def echo_all(message):
-    bot.reply_to(message, "Виберіть існуючу команду")
+    bot.reply_to(message, "Choose existing command")
