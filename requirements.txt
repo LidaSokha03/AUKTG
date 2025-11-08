@@ -4,3 +4,8 @@ pymongo
 dnspython
 groq
 requests
+
+fpdf
+pathlib
+telebot
+python-docx
