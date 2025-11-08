@@ -1,6 +1,6 @@
 class CV:
     # def init(self, user_id: int, firstname: str, lastname: str, email: str, phone: str, education: str, experience: int, skills: list, languages: list, projects: str):
-    def init(self, user_id: str, firstname: str, lastname: str, email: str, phone: str, education: str, experience: str, skills: str, languages: str, projects: str):
+    def __init__(self, user_id: str, firstname: str, lastname: str, email: str, phone: str, education: str, experience: str, skills: str, languages: str, projects: str):
         self.user_id = user_id #auto_generated
         self.firstname = firstname #Lida
         self.lastname = lastname #Sokha

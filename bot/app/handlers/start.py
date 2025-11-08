@@ -12,9 +12,9 @@ def send_welcome(message):
         user.save()
 
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    register_button = types.KeyboardButton('/register')
-    login_button = types.KeyboardButton('/login')
-    interview_button = types.KeyboardButton('/interview')  # кнопка інтервʼю ✅
+    register_button = types.KeyboardButton('Registration')
+    login_button = types.KeyboardButton('Login')
+    interview_button = types.KeyboardButton('Interview')  # кнопка інтервʼю ✅
 
     markup.add(register_button, login_button)
     markup.add(interview_button)
