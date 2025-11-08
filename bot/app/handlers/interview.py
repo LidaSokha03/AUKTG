@@ -1,93 +1,120 @@
-from aiogram import Router, F
-from aiogram.types import Message
-from aiogram.fsm.context import FSMContext
-import asyncio
+from app.bot_instance import bot
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from app.services.llm_questions import generate_mcq_question
+from app.services.interview_history import save_interview_result
+import textwrap
 
-from app.states.interview import Interview
+user_quiz = {}
 
-router = Router()
-
-QUESTIONS = [
-    "Що таке ООП?",
-    "Назви принципи SOLID",
-    "Що таке інкапсуляція?",
-    "Чим відрізняється TCP від UDP?",
-    "Що таке база даних?"
-]
+MAX_LEN = 28  # оптимально для телефона
 
 
-@router.message(F.text == "/interview")
-async def start_interview(message: Message, state: FSMContext):
-    await state.update_data(answers=[], index=0)
-    await message.answer("Починаємо інтерв'ю!")
-    await ask_next(message, state)
+def format_text(text):
+    text = text.strip()
+    if len(text) <= MAX_LEN:
+        return text
+    return "\n".join(textwrap.wrap(text, MAX_LEN))
 
 
-async def ask_next(message: Message, state: FSMContext):
-    data = await state.get_data()
-    index = data.get("index", 0)
+@bot.message_handler(commands=["interview"])
+def start_mcq(msg):
+    user_id = msg.from_user.id
 
-    if index >= len(QUESTIONS):
-        await finish_interview(message, state)
+    if user_id in user_quiz:
+        bot.send_message(user_id, "⚠️ Ви вже проходите тест! Завершіть його.")
         return
 
-    question = QUESTIONS[index]
-    await state.update_data(current_question=question, timer_active=True)
-    await state.set_state(Interview.asking)
+    user_quiz[user_id] = {"score": 0, "q": 0, "questions": []}
 
-    await message.answer(f"{question}\nУ тебе є 60 секунд на відповідь")
-
-    async def timer():
-        await asyncio.sleep(60)
-        data = await state.get_data()
-        
-        if data.get("timer_active"):
-            answers = data["answers"]
-            answers.append("(не відповів)")
-            await state.update_data(answers=answers, index=data["index"] + 1, timer_active=False)
-            await ask_next(message, state)
-
-    asyncio.create_task(timer())
+    bot.send_message(
+        user_id,
+        "🧠 Починаємо тест! Тисни на правильну відповідь 👇"
+    )
+    send_new_question(user_id)
 
 
-@router.message(Interview.asking)
-async def save_answer(message: Message, state: FSMContext):
-    data = await state.get_data()
+def send_new_question(user_id):
+    q = generate_mcq_question()
 
-    if not data.get("timer_active"):
-        return
+    # ✅ fallback якщо API недоступне
+    if not q or "options" not in q or "correct_index" not in q:
+        q = {
+            "question": "Що таке ООП?",
+            "options": [
+                "Парадигма програмування ✅",
+                "Мова Python",
+                "Операційна система",
+                "Тип бази даних"
+            ],
+            "correct_index": 0
+        }
 
-    await state.update_data(timer_active=False)
+    user_quiz[user_id]["current"] = q
+    user_quiz[user_id]["questions"].append(q)
 
-    answers = data["answers"]
-    answers.append(message.text)
+    kb = InlineKeyboardMarkup(row_width=1)
 
-    await state.update_data(answers=answers, index=data["index"] + 1)
+    for i, opt in enumerate(q["options"]):
+        pretty = format_text(opt)
+        kb.add(InlineKeyboardButton(pretty, callback_data=f"answer_{i}"))
 
-    await ask_next(message, state)
-
-
-async def finish_interview(message: Message, state: FSMContext):
-    data = await state.get_data()
-    answers = data["answers"]
-
-    valid = sum(1 for a in answers if a != "(не відповів)")
-    total = len(QUESTIONS)
-
-    score = valid * 2
-
-    checklist = [
-        "Відповів хоча б на 1 питання" if valid > 0 else "Не відповів на жодне питання",
-        f"Відповів на {valid} із {total}" if valid >= total // 2 else f"Лише {valid} із {total}",
-        "Не здавайся" if valid > 2 else "Потрібно більше практики"
-    ]
-
-    checklist_text = "\n".join(checklist)
-
-    await message.answer(
-        f"Інтерв'ю завершено!\n"
-        f"Твій бал: {score}/{total * 2}\n\n"
-        f"Чек-лист:\n{checklist_text}"
+    bot.send_message(
+        user_id,
+        f"❓ {format_text(q['question'])}",
+        reply_markup=kb
     )
 
-    await state.clear()
+
+@bot.callback_query_handler(func=lambda c: c.data.startswith("answer_"))
+def handle_answer(call):
+    user_id = call.from_user.id
+
+    if user_id not in user_quiz:
+        bot.answer_callback_query(call.id, "Натисни /interview щоб почати 🚀")
+        return
+
+    chosen = int(call.data.split("_")[1])
+    current = user_quiz[user_id]["current"]
+    correct = current["correct_index"]
+
+    # ✅ відповідь користувача
+    if chosen == correct:
+        user_quiz[user_id]["score"] += 1
+        bot.answer_callback_query(call.id, "✅ Правильно!")
+    else:
+        bot.answer_callback_query(
+            call.id,
+            f"❌ Помилка\n➡️ Правильно: {current['options'][correct]}"
+        )
+
+    # ✅ Видаляємо кнопки після відповіді
+    try:
+        bot.edit_message_reply_markup(
+            call.message.chat.id,
+            call.message.message_id,
+            reply_markup=None
+        )
+    except:
+        pass
+
+    user_quiz[user_id]["q"] += 1
+
+    # ✅ Якщо тест завершено
+    if user_quiz[user_id]["q"] >= 5:
+        score = user_quiz[user_id]["score"]
+
+        save_interview_result(user_id, score, user_quiz[user_id]["questions"])
+
+        bot.send_message(
+            user_id,
+            f"🏁 Готово!\n"
+            f"Твій результат: <b>{score}/5</b> ✅\n\n"
+            f"Подивитись історію: /history\n"
+            f"Хочеш ще? /interview",
+            parse_mode="HTML"
+        )
+
+        del user_quiz[user_id]
+        return
+
+    send_new_question(user_id)
