@@ -12,46 +12,56 @@ class Profile:
     def save(self):
         profile_doc = db.profiles.find_one({"tg_id": self.tg_id})
 
-        last_version = 0
-        if profile_doc:
-            history = profile_doc.get("cv_history", [])
-            if history:
-                last_version = history[-1].get("version", 0)
-            else:
-                cv_doc = profile_doc.get("cv", {})
-                last_version = cv_doc.get("version", 0)
+        has_cv_data = any([
+        self.cv.firstname,
+        self.cv.lastname,
+        self.cv.email,
+        self.cv.phone,
+        self.cv.education,
+        self.cv.experience,
+        self.cv.skills,
+        self.cv.courses,
+        ])
 
-        next_version = last_version + 1
-        self.cv.version = next_version
+        update_set = {
+        "fullname": self.fullname,
+        "email": self.email,}
 
-        cv_data = {
-            "version": self.cv.version,
-            "firstname": self.cv.firstname,
-            "lastname": self.cv.lastname,
-            "email": self.cv.email,
-            "phone": self.cv.phone,
-            "education": self.cv.education,
-            "experience": self.cv.experience,
-            "skills": self.cv.skills,
-            "courses": self.cv.courses,
-        }
+        update_ops = {"$set": update_set}
+
+        if has_cv_data:
+            last_version = 0
+            if profile_doc:
+                history = profile_doc.get("cv_history", [])
+                if history:
+                    last_version = history[-1].get("version", 0)
+                else:
+                    cv_doc = profile_doc.get("cv", {})
+                    last_version = cv_doc.get("version", 0)
+
+            next_version = last_version + 1
+            self.cv.version = next_version
+
+            cv_data = {
+                "version": self.cv.version,
+                "firstname": self.cv.firstname,
+                "lastname": self.cv.lastname,
+                "email": self.cv.email,
+                "phone": self.cv.phone,
+                "education": self.cv.education,
+                "experience": self.cv.experience,
+                "skills": self.cv.skills,
+                "courses": self.cv.courses,
+            }
+
+            update_set["cv"] = cv_data
+            update_ops["$push"] = {"cv_history": cv_data}
 
         db.profiles.update_one(
             {"tg_id": self.tg_id},
-            {
-                "$set": {
-                    "fullname": self.fullname,
-                    "email": self.email,
-                  "cv": cv_data,
-                },
-
-                "$push": {
-                    "cv_history": cv_data
-                }
-            },
+            update_ops,
             upsert=True,
         )
-
 
     @staticmethod
     def save_template(tg_id, template):
