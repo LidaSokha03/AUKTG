@@ -52,11 +52,8 @@ def cleanup_user_state(user_id):
 
 
 @bot.message_handler(commands=["interview"])
-def start_mcq(msg):
-    user_id = msg.from_user.id
-    
-    print(f"[DEBUG] /interview command from user {user_id}")
-    
+def start_mcq(call_or_msg):
+    user_id = call_or_msg.from_user.id
     cleanup_user_state(user_id)
 
     kb = InlineKeyboardMarkup(row_width=2)
@@ -113,6 +110,11 @@ def quick_start(call: CallbackQuery):
     time.sleep(1)
     send_new_question(user_id)
 
+
+@bot.callback_query_handler(func=lambda c: c.data == "interview")
+def interview_callback(call):
+    bot.answer_callback_query(call.id)
+    start_mcq(call)
 
 @bot.callback_query_handler(func=lambda c: c.data == "select_difficulty")
 def select_difficulty(call: CallbackQuery):

@@ -7,7 +7,7 @@ class Profile:
         self.tg_id = str(user_id)
         self.fullname = fullname
         self.email = email
-        self.cv = CV(user_id, "", "", "", "", "", "", "", "", "")
+        self.cv = CV(user_id, "", "", "", "", "", "", "", "")
 
     def save(self):
         profile_doc = db.profiles.find_one({"tg_id": self.tg_id})
@@ -42,14 +42,27 @@ class Profile:
                 "$set": {
                     "fullname": self.fullname,
                     "email": self.email,
-                    "cv": cv_data,
+                    "cv": {
+                        "version": self.cv.version,
+                        "firstname": self.cv.firstname,
+                        "lastname": self.cv.lastname,
+                        "email": self.cv.email,
+                        "phone": self.cv.phone,
+                        "education": self.cv.education,
+                        "experience": self.cv.experience,
+                        "skills": self.cv.skills,
+                        "courses": self.cv.courses,
+                    },
+                  "cv": cv_data,
                 },
+
                 "$push": {
-                    "cv_history": cv_data,
-                },
-            },},
+                    "cv_history": cv_data
+                }
+            },
             upsert=True,
         )
+
 
     @staticmethod
     def save_template(tg_id, template):

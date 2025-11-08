@@ -4,7 +4,7 @@
 !.env.example
 
 # Python
-__pycache__/
+pycache/
 *.py[cod]
 *$py.class
 
@@ -60,4 +60,4 @@ desktop.ini
 *.swo
 
 # Project specific temporary files
-bot/**/__pycache__/
+bot/**/pycache/
