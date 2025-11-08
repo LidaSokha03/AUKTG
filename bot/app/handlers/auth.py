@@ -74,3 +74,10 @@ def login_handler(message):
 
     bot.reply_to(message, "You are in your account ✅")
     dashboard(message)
+
+@bot.message_handler(func=lambda m: m.text in ['📝 Register', '🔐 Login'])
+def main_menu_buttons(message):
+    if message.text == '📝 Register':
+        return register_handler(message)
+    elif message.text == '🔐 Login':
+        return login_handler(message)
