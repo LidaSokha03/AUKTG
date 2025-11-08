@@ -14,4 +14,3 @@ def dashboard(message):
         reply_markup=markup,
         parse_mode="HTML"
     )
-

@@ -1,11 +1,10 @@
 from app.bot_instance import bot
 
-
 import app.handlers.history
 import app.handlers.start
 import app.handlers.auth
 import app.handlers.interview 
-import app.handlers.form_pdf # ✅ додаємо
+import app.handlers.from_pdf
 
 
 if __name__ == "__main__":

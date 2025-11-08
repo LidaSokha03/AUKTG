@@ -64,5 +64,5 @@ def cv_to_pdf(cv_obj: CV, out_path:Path = Path('exports')) -> Path:
     pdf.output(str(file_path))
     return file_path, made_time
 
-our_curr = CV("auto_generated", "Lida", "Sokha", "lidasosokha@gmail.com", "380964692379", "Bachelor's Degree in BA, UCU", "8", "['skill1', 'skill2']", "['language1, level', 'language2, level']", "text")
-print(cv_to_pdf(our_curr))
+# our_curr = CV("auto_generated", "Lida", "Sokha", "lidasosokha@gmail.com", "380964692379", "Bachelor's Degree in BA, UCU", "8", "['skill1', 'skill2']", "['language1, level', 'language2, level']", "text")
+# print(cv_to_pdf(our_curr))
