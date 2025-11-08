@@ -1,20 +1,28 @@
 from app.bot_instance import bot
-from app.db.models.user import User
-from app.db.models.profile import Profile
-from app.handlers.dashboard import dashboard
 from app.db.database import db
 
 
-def cv_history(message):
-    tg_id = message.from_user.id
+def _send_no_cv(chat_id):
+    bot.send_message(chat_id, "You don't have CV yet 💾")
 
-    profile_doc = db.profiles.find_one({"tg_id": tg_id})
 
-    if not profile_doc or "cv_history" not in profile_doc or not profile_doc["cv_history"]:
-        bot.reply_to(message, "You don't have CV 💾")
+def send_cv_history(tg_id: int, chat_id: int):
+    query = {"tg_id": str(tg_id)}
+    profile_doc = db.profiles.find_one(query)
+
+
+    if profile_doc is None:
+        _send_no_cv(chat_id)
         return
 
-    history = profile_doc["cv_history"]
+    history = profile_doc.get("cv_history") or []
+
+    if not history:
+        cv_doc = profile_doc.get("cv")
+        if not cv_doc:
+            _send_no_cv(chat_id)
+            return
+        history = [cv_doc]
 
     lines = ["📚 CV history:\n"]
     for cv in history:
@@ -25,10 +33,15 @@ def cv_history(message):
         lines.append(f"• Version {version}: {firstname} {lastname} ({email})")
 
     text = "\n".join(lines)
-    bot.reply_to(message, text)
+    bot.send_message(chat_id, text)
+
+
+@bot.message_handler(commands=["cv_history"])
+def cv_history_command(message):
+    send_cv_history(message.from_user.id, message.chat.id)
+
 
 @bot.callback_query_handler(func=lambda call: call.data == "cv_history")
 def cv_history_callback(call):
-    cv_history(call.message)
+    send_cv_history(call.from_user.id, call.message.chat.id)
     bot.answer_callback_query(call.id)
-

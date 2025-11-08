@@ -1,9 +1,10 @@
 from app.db.models.cv import CV
 from app.db.database import db
 
+
 class Profile:
     def __init__(self, user_id: int, fullname: str = "", email: str = ""):
-        self.tg_id = user_id
+        self.tg_id = str(user_id)
         self.fullname = fullname
         self.email = email
         self.cv = CV(user_id, "", "", "", "", "", "", "", "")
@@ -52,6 +53,7 @@ class Profile:
                         "skills": self.cv.skills,
                         "courses": self.cv.courses,
                     },
+                  "cv": cv_data,
                 },
 
                 "$push": {
@@ -65,16 +67,16 @@ class Profile:
     @staticmethod
     def save_template(tg_id, template):
         db.profiles.update_one(
-            {"tg_id": tg_id},
+            {"tg_id": str(tg_id)},
             {"$set": {"template": template}},
             upsert=True
         )
+
     @staticmethod
     def save_profile(tg_id, full_name, email, cv):
-        profile = Profile(tg_id, full_name, email)  
+        profile = Profile(tg_id, full_name, email)
         profile.cv = cv
         profile.save()
-
 
     def load(self):
         profile = db.profiles.find_one({"tg_id": self.tg_id})
@@ -91,8 +93,8 @@ class Profile:
                 cv_data.get("education", ""),
                 cv_data.get("experience", ""),
                 cv_data.get("skills", ""),
-                cv_data.get("courses", "")
-
+                cv_data.get("courses", ""),
+                cv_data.get("version", 1),
             )
 
         return profile
@@ -103,12 +105,13 @@ class Profile:
 
     @staticmethod
     def get_by_tg_id(tg_id: int):
-        profile_data = db.profiles.find_one({"tg_id": tg_id})
+        profile_data = db.profiles.find_one({"tg_id": str(tg_id)})
         if profile_data:
             profile = Profile(
                 profile_data["tg_id"],
                 profile_data.get("fullname", ""),
-                profile_data.get("email", ""),)
+                profile_data.get("email", ""),
+            )
             cv_data = profile_data.get("cv", {})
 
             profile.cv = CV(
@@ -120,8 +123,8 @@ class Profile:
                 cv_data.get("education", ""),
                 cv_data.get("experience", ""),
                 cv_data.get("skills", ""),
-                cv_data.get("courses", "")
-
+                cv_data.get("courses", ""),
+                cv_data.get("version", 1),
             )
 
             return profile

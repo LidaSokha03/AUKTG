@@ -11,4 +11,3 @@ class CV:
         self.education = education #Bachelor's Degree in BA, UCU
         self.courses = courses #text for start but after this list of languages ['language1, level', 'language2, level']
         self.skills = skills #for the start only in text but after this list of skills ['skill1', 'skill2']
-        
