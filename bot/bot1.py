@@ -14,5 +14,5 @@ import app.handlers.cv_history
 
 
 if __name__ == "__main__":
-    print("🚀 Bot is running...")
+    print("...")
     bot.infinity_polling()
